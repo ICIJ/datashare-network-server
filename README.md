@@ -1,4 +1,4 @@
-# datashare network server [![CircleCI](https://circleci.com/gh/ICIJ/datashare-network-server/tree/main.svg?style=svg&circle-token=4114eed623f62c2c3896785aceee50af0457e4ce)](https://circleci.com/gh/ICIJ/datashare-network-server/tree/main)
+# datashare network server [![CircleCI](https://circleci.com/gh/ICIJ/datashare-network-server/tree/main.svg?style=svg&circle-token=0300188508c6ff4f496775b9fb7697f72102c9e6)](https://circleci.com/gh/ICIJ/datashare-network-server/tree/main)
 
 This is the http server for the protocol described in the EPFL paper:
 
