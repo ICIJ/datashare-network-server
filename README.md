@@ -1,4 +1,4 @@
-# datashare network server [![CircleCI](https://circleci.com/gh/ICIJ/datashare-network-server/tree/main.svg?style=svg&circle-token=0300188508c6ff4f496775b9fb7697f72102c9e6)](https://circleci.com/gh/ICIJ/datashare-network-server/tree/main)
+# Datashare network server [![CircleCI](https://circleci.com/gh/ICIJ/datashare-network-server/tree/main.svg?style=svg&circle-token=0300188508c6ff4f496775b9fb7697f72102c9e6)](https://circleci.com/gh/ICIJ/datashare-network-server/tree/main)
 
 This is the http server for the protocol described in the EPFL paper:
 
@@ -18,7 +18,7 @@ INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 ```
 
-# developing
+# Developing
 
 We use [pipenv](https://pipenv.pypa.io) to package/develop the server
 
