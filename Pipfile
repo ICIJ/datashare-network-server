@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+datashare-network-core = '*'
+fastapi = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+pytest = "*"
+
+[dev-packages]
+bumpversion = "==0.6.0"
+setuptools-pipfile = "==0.4.1"
+twine = "==3.2.0"
+httpx = "*"
+pytest = "*"
+pytest-asyncio = "*"
+
+[requires]
+python_version = "3"
