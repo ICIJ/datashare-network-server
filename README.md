@@ -20,9 +20,28 @@ INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 
 # Developing
 
-We use [pipenv](https://pipenv.pypa.io) to package/develop the server
+We use [pipenv](https://pipenv.pypa.io) to package/develop the server. We will use it to install all dependencies :
 
 ```shell
 $ make install
+```
+
+## Database 
+
+You need to create first the database. You can bootstrap it with : 
+
+```shell
+$ psql  -U <admin_user> -h <psql_host> < bootstrap_db.sql
+```
+
+Then to run the migrations :
+
+```shell
+$ /path/to/alembic upgrade head 
+```
+
+## Testing
+
+```shell
 $ make test
 ```
