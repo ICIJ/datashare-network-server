@@ -9,7 +9,7 @@ starlette = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 pytest = "*"
 sqlalchemy = "*"
-databases = "*"
+databases = {extras = ["sqlite"], version = "*"}
 alembic = "*"
 psycopg2 = "*"
 

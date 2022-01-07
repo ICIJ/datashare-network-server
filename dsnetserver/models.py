@@ -3,7 +3,7 @@ from sqlalchemy import Table, Column, Integer, DateTime, Text, LargeBinary, Stri
 # Database table definitions.
 metadata = MetaData()
 
-Table(
+broadcast_query_table = Table(
     "broadcast_query",
     metadata,
     Column("id", Integer, primary_key=True),
@@ -11,7 +11,7 @@ Table(
     Column("message", Text, nullable=False),
 )
 
-Table(
+pigeonhole_message_table = Table(
     "pigeonhole_message",
     metadata,
     Column("id", Integer, primary_key=True),
