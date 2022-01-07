@@ -7,11 +7,7 @@ name = "pypi"
 datashare-network-core = '*'
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
-sqlalchemy = '*'
-databases = {extras = ["sqlite"], version = "*"}
-alembic = "*"
-pydantic = "*"
-psycopg2 = "*"
+pytest = "*"
 
 [dev-packages]
 bumpversion = "==0.6.0"
