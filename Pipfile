@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 datashare-network-core = '*'
-fastapi = "*"
+starlette = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 pytest = "*"
 
