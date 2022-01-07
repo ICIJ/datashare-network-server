@@ -8,6 +8,10 @@ datashare-network-core = '*'
 starlette = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 pytest = "*"
+sqlalchemy = "*"
+databases = "*"
+alembic = "*"
+psycopg2 = "*"
 
 [dev-packages]
 bumpversion = "==0.6.0"
