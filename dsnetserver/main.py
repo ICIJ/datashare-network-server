@@ -7,7 +7,7 @@ from starlette.endpoints import HTTPEndpoint
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route, Mount
 from dsnetserver import __version__
-from dsnetserver.models import pigeonhole_message_table
+from dsnetserver.models import pigeonhole_message_table, broadcast_query_table
 from sqlalchemy import insert
 
 DATABASE_URL = os.getenv('DS_DATABASE_URL', 'sqlite:///dsnet.db')
@@ -16,6 +16,14 @@ database = databases.Database(DATABASE_URL)
 
 async def homepage(_):
     return JSONResponse({"message": "Datashare Network Server version %s" % __version__})
+
+
+async def broadcast(request):
+    message = await request.body()
+    stmt = insert(broadcast_query_table). \
+        values(received_at=datetime.now(), message=message)
+    await database.execute(stmt)
+    return Response()
 
 
 class PigeonHole(HTTPEndpoint):
@@ -37,6 +45,7 @@ class PigeonHole(HTTPEndpoint):
 
 routes = [
     Route('/', homepage),
+    Route('/bb/broadcast', broadcast, methods=['POST']),
     Mount('/ph', routes=[
         Route('/{address:str}', PigeonHole, methods=['GET', 'POST']),
     ])

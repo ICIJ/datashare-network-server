@@ -8,7 +8,7 @@ broadcast_query_table = Table(
     metadata,
     Column("id", Integer, primary_key=True),
     Column("received_at", DateTime(), index=True),
-    Column("message", Text, nullable=False),
+    Column("message", LargeBinary, nullable=False),
 )
 
 pigeonhole_message_table = Table(

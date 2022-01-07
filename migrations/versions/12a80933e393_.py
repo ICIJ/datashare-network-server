@@ -21,7 +21,7 @@ def upgrade():
     op.create_table('broadcast_query',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('received_at', sa.DateTime(), nullable=True),
-    sa.Column('message', sa.Text(), nullable=False),
+    sa.Column('message', sa.LargeBinary(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_broadcast_query_received_at'), 'broadcast_query', ['received_at'], unique=False)
