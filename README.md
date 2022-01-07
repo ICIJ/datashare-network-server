@@ -5,6 +5,8 @@ This is the http server for the protocol described in the EPFL paper:
 [DATASHARENETWORK A Decentralized Privacy-Preserving Search Engine for Investigative Journalists](https://arxiv.org/pdf/2005.14645.pdf)
 
 This is a work in progress.
+# Requirements
+`psycopg2` requires the installation of `python3-dev` ([see psycopg prerequisites here](https://www.psycopg.org/docs/install.html#build-prerequisites))
 
 # Running the server locally
 
