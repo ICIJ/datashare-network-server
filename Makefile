@@ -16,13 +16,13 @@ run:
 		pipenv run uvicorn dsnetserver.main:app
 
 minor:
-		pipenv run bumpversion --commit --tag --current-version ${CURRENT_VERSION} minor dsnet-server/__init__.py
+		pipenv run bumpversion --commit --tag --current-version ${CURRENT_VERSION} minor dsnetserver/__init__.py
 
 major:
-		pipenv run bumpversion --commit --tag --current-version ${CURRENT_VERSION} major dsnet-server/__init__.py
+		pipenv run bumpversion --commit --tag --current-version ${CURRENT_VERSION} major dsnetserver/__init__.py
 
 patch:
-		pipenv run bumpversion --commit --tag --current-version ${CURRENT_VERSION} patch dsnet-server/__init__.py
+		pipenv run bumpversion --commit --tag --current-version ${CURRENT_VERSION} patch dsnetserver/__init__.py
 
 distribute:
 		pipenv run python setup.py sdist bdist_wheel
