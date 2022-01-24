@@ -4,18 +4,12 @@ jobs:
     docker:
       - image: circleci/python:3.6
 
-    working_directory: ~/repo
-
     steps:
       - checkout
 
-      - run:
-          name: install python-dev
-          command: sudo apt install -y python3-dev
-
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "Pipfile.lock" }}
+            - v1-dependencies-{{ checksum "Pipenv.lock" }}
 
       - run:
           name: install dependencies
@@ -25,7 +19,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.local/share/virtualenvs
-          key: v1-dependencies-{{ checksum "Pipfile.lock" }}
+          key: v1-dependencies-{{ checksum "Pipenv.lock" }}
 
       - run:
           name: run tests
