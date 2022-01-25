@@ -1,25 +1,24 @@
 [[source]]
-url = "https://pypi.python.org/simple"
+url = 'https://pypi.python.org/simple'
 verify_ssl = true
-name = "pypi"
+name = 'pypi'
 
 [packages]
 datashare-network-core = '*'
-starlette = "*"
-uvicorn = {extras = ["standard"], version = "*"}
-pytest = "*"
-sqlalchemy = "*"
-databases = {extras = ["sqlite"], version = "*"}
-alembic = "*"
-psycopg2 = "*"
+starlette = '*'
+uvicorn = {extras = ['standard'], version = '*'}
+pytest = '*'
+sqlalchemy = '*'
+databases = {extras = ['sqlite'], version = '*'}
+alembic = '*'
+psycopg2 = '*'
 
 [dev-packages]
-bumpversion = "==0.6.0"
-setuptools-pipfile = "==0.4.1"
-twine = "==3.2.0"
-httpx = "*"
-pytest = "*"
-pytest-asyncio = "*"
+bumpversion = '==0.6.0'
+setuptools-pipfile = '==0.4.1'
+twine = '==3.2.0'
+pytest = '*'
+pytest-timeout = '*'
 
 [requires]
-python_version = "3"
+python_version = '3'
