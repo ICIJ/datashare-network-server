@@ -39,11 +39,6 @@ class BulletinBoard(WebSocketEndpoint):
         for connection in cls.connections:
             await connection.send_bytes(data)
 
-    @classmethod
-    async def close(cls):
-        for connection in cls.connections:
-            await connection.close(reason='server shutdown')
-
 
 async def homepage(_):
     return JSONResponse({"message": "Datashare Network Server version %s" % __version__})
@@ -85,4 +80,4 @@ routes = [
 
 app = Starlette(debug=True, routes=routes,
                 on_startup=[database.connect],
-                on_shutdown=[database.disconnect, BulletinBoard.close])
+                on_shutdown=[database.disconnect])
