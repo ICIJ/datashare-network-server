@@ -15,6 +15,7 @@ from starlette.websockets import WebSocket
 from dsnetserver import __version__
 from dsnetserver.models import pigeonhole_message_table, broadcast_query_table
 from sqlalchemy import insert
+from dsnet.core import PigeonHoleNotification
 
 DATABASE_URL = os.getenv('DS_DATABASE_URL', 'sqlite:///dsnet.db')
 database = databases.Database(DATABASE_URL)
@@ -60,6 +61,7 @@ class PigeonHole(HTTPEndpoint):
         stmt = insert(pigeonhole_message_table). \
             values(received_at=datetime.now(), message=message, address=address)
         await database.execute(stmt)
+        await BulletinBoard.broadcast(PigeonHoleNotification.from_address(bytes.fromhex(address)).to_bytes())
         return Response()
 
     async def get(self, request):

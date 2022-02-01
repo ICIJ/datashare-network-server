@@ -6,7 +6,7 @@ from dsnetserver.main import app
 from dsnetserver import __version__
 from dsnetserver.main import DATABASE_URL, database
 from dsnetserver.models import metadata, pigeonhole_message_table, broadcast_query_table
-
+from dsnet.core import PigeonHoleNotification
 
 db = None
 
@@ -32,10 +32,10 @@ def test_root():
 def test_post_get_ph_message():
     client = TestClient(app)
 
-    response = client.post("/ph/address", data=b'binary message')
+    response = client.post("/ph/deadbeef", data=b'binary message')
     assert response.status_code == 200
 
-    response = client.get("/ph/address")
+    response = client.get("/ph/deadbeef")
     assert response.status_code == 200
     assert response.headers['Content-Type'] == 'application/octet-stream'
     assert response.content == b'binary message'
@@ -50,5 +50,16 @@ def test_post_broadcast():
         assert response.status_code == 200
         data = websocket.receive_bytes()
         assert data == b'query payload'
+
+
+@pytest.mark.timeout(5)
+def test_post_response():
+    client = TestClient(app)
+
+    with client.websocket_connect('/notifications') as websocket:
+        response = client.post("/ph/deadbeef", data=b'response data')
+        assert response.status_code == 200
+        data = websocket.receive_bytes()
+        assert data == PigeonHoleNotification('deadbe').to_bytes()
 
 
