@@ -15,7 +15,7 @@ from starlette.websockets import WebSocket
 from dsnetserver import __version__
 from dsnetserver.models import pigeonhole_message_table, broadcast_query_table
 from sqlalchemy import insert
-from dsnet.core import PigeonHoleNotification
+from dsnet.message import PigeonHoleNotification
 
 DATABASE_URL = os.getenv('DS_DATABASE_URL', 'sqlite:///dsnet.db')
 database = databases.Database(DATABASE_URL)

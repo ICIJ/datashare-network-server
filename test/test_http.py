@@ -6,7 +6,7 @@ from dsnetserver.main import app
 from dsnetserver import __version__
 from dsnetserver.main import DATABASE_URL, database
 from dsnetserver.models import metadata, pigeonhole_message_table, broadcast_query_table
-from dsnet.core import PigeonHoleNotification
+from dsnet.message import PigeonHoleNotification
 
 db = None
 
