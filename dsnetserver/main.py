@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 from datetime import datetime
 from typing import List
@@ -13,6 +14,7 @@ from starlette.types import Scope, Receive, Send
 from starlette.websockets import WebSocket
 
 from dsnetserver import __version__
+from dsnet.logger import logger, add_stdout_handler
 from dsnetserver.models import pigeonhole_message_table, broadcast_query_table
 from sqlalchemy import insert
 from dsnet.message import PigeonHoleNotification
@@ -37,6 +39,7 @@ class BulletinBoard(WebSocketEndpoint):
 
     @classmethod
     async def broadcast(cls, data):
+        logger.debug(f"broadcasting to {len(cls.connections)} clients")
         for connection in cls.connections:
             await connection.send_bytes(data)
 
@@ -80,6 +83,7 @@ routes = [
     ])
 ]
 
+add_stdout_handler(level=logging.DEBUG)
 app = Starlette(debug=True, routes=routes,
                 on_startup=[database.connect],
                 on_shutdown=[database.disconnect])
