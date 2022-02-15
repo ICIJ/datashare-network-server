@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2238b49f236cb0d039af250587c7f92347d3f596d9b71a15f495d666588a9e53"
+            "sha256": "dfe9f52251c70ccd55263713292ae6969834d67871387eec6eb7057dc011f640"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -189,11 +189,11 @@
         },
         "datashare-network-core": {
             "hashes": [
-                "sha256:7b3af15d461f72f4457b5704a6c3beca4b812396b6e60875b689bdac3fc17ba6",
-                "sha256:f3ab01d6dd906a08f1d30c3c2f64de41829b519a8a143a61db012a58a40dd450"
+                "sha256:891195e685f9ef7aae15d0f7746ec9412840c328d4d4a100e6027a8525ccf5b0",
+                "sha256:bd35700d5576de94763575cd9db7c201fea166f2da913c505fe5808e49284f03"
             ],
             "index": "pypi",
-            "version": "==0.8.0"
+            "version": "==0.9.1"
         },
         "greenlet": {
             "hashes": [
@@ -303,11 +303,11 @@
         },
         "importlib-metadata": {
             "hashes": [
-                "sha256:6affcdb3aec542dd98df8211e730bba6c5f2bec8288d47bacacde898f548c9ad",
-                "sha256:9e5e553bbba1843cb4a00823014b907616be46ee503d2b9ba001d214a8da218f"
+                "sha256:175f4ee440a0317f6e8d81b7f8d4869f93316170a65ad2b007d2929186c8052c",
+                "sha256:e0bc84ff355328a4adfc5240c4f211e0ab386f80aa640d1b11f0618a1d282094"
             ],
             "markers": "python_version < '3.9'",
-            "version": "==4.11.0"
+            "version": "==4.11.1"
         },
         "importlib-resources": {
             "hashes": [
@@ -846,11 +846,11 @@
         },
         "importlib-metadata": {
             "hashes": [
-                "sha256:6affcdb3aec542dd98df8211e730bba6c5f2bec8288d47bacacde898f548c9ad",
-                "sha256:9e5e553bbba1843cb4a00823014b907616be46ee503d2b9ba001d214a8da218f"
+                "sha256:175f4ee440a0317f6e8d81b7f8d4869f93316170a65ad2b007d2929186c8052c",
+                "sha256:e0bc84ff355328a4adfc5240c4f211e0ab386f80aa640d1b11f0618a1d282094"
             ],
             "markers": "python_version < '3.9'",
-            "version": "==4.11.0"
+            "version": "==4.11.1"
         },
         "iniconfig": {
             "hashes": [
