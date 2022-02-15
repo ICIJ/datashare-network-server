@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "dfe9f52251c70ccd55263713292ae6969834d67871387eec6eb7057dc011f640"
+            "sha256": "dd0a501571018b15d4633b1641cce24dac8359419c9afcd0d4f137eb8e2ad475"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -189,11 +189,11 @@
         },
         "datashare-network-core": {
             "hashes": [
-                "sha256:891195e685f9ef7aae15d0f7746ec9412840c328d4d4a100e6027a8525ccf5b0",
-                "sha256:bd35700d5576de94763575cd9db7c201fea166f2da913c505fe5808e49284f03"
+                "sha256:721d117ab83482893ae6d2e30b373f83530bc40a22247b98241cef6eaebafed6",
+                "sha256:bda552b2037c038b0895cb6642d9ef6fc40ed1631eb7d5a13f702421a800ec1d"
             ],
             "index": "pypi",
-            "version": "==0.9.1"
+            "version": "==0.9.2"
         },
         "greenlet": {
             "hashes": [
