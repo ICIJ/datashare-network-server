@@ -1,6 +1,7 @@
 import pytest
 from sqlalchemy import create_engine
 import asyncio
+import dsnet
 from starlette.testclient import TestClient
 from dsnetserver.main import app
 from dsnetserver import __version__
@@ -26,7 +27,9 @@ def test_root():
     client = TestClient(app)
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"message": "Datashare Network Server version %s" % __version__}
+    assert response.json() == {"message": "Datashare Network Server version %s" % __version__,
+                               "server_version": __version__,
+                               "core_version": dsnet.__version__}
 
 
 def test_post_get_ph_message():

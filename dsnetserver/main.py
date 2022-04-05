@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import List
 
 import databases
+import dsnet
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
 from starlette.responses import JSONResponse, Response
@@ -45,7 +46,9 @@ class BulletinBoard(WebSocketEndpoint):
 
 
 async def homepage(_):
-    return JSONResponse({"message": "Datashare Network Server version %s" % __version__})
+    return JSONResponse({"message": f"Datashare Network Server version {__version__}",
+                         "server_version": __version__,
+                         "core_version": dsnet.__version__})
 
 
 async def broadcast(request):
