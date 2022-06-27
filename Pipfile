@@ -6,6 +6,7 @@ name = 'pypi'
 [packages]
 datashare-network-core = '==0.13.0'
 starlette = '*'
+msgpack = '*'
 uvicorn = {extras = ['standard'], version = '*'}
 pytest = '*'
 sqlalchemy = '*'

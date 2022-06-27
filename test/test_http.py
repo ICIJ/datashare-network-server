@@ -2,6 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 import asyncio
 import dsnet
+import msgpack
 from starlette.testclient import TestClient
 from dsnetserver.main import app
 from dsnetserver import __version__
@@ -42,6 +43,32 @@ def test_post_get_ph_message():
     assert response.status_code == 200
     assert response.headers['Content-Type'] == 'application/octet-stream'
     assert response.content == b'binary message'
+
+
+def test_post_get_ph_message_with_wrong_address():
+    client = TestClient(app)
+
+    response = client.get("/ph/unknown")
+    assert response.status_code == 404
+
+
+def test_get_ph_messages_by_shortened_address():
+    client = TestClient(app)
+
+    response = client.post("/ph/beefc0fe", data=b'binary message 1')
+    assert response.status_code == 200
+
+    response = client.post("/ph/beefc0c0", data=b'binary message 2')
+    assert response.status_code == 200
+
+
+    response = client.get("/ph/beefc0")
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/octet-stream'
+    messages = msgpack.unpackb(response.content, raw=False)
+    assert len(messages) == 2
+    assert messages[0] == b'binary message 1'
+    assert messages[1] == b'binary message 2'
 
 
 @pytest.mark.timeout(5)

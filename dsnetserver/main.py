@@ -7,6 +7,7 @@ from typing import List
 
 import databases
 import dsnet
+import msgpack
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
 from starlette.responses import JSONResponse, Response
@@ -21,6 +22,7 @@ from sqlalchemy import insert
 from dsnet.message import PigeonHoleNotification
 
 DATABASE_URL = os.getenv('DS_DATABASE_URL', 'sqlite:///dsnet.db')
+PREFIX_LEN = 6
 database = databases.Database(DATABASE_URL)
 
 
@@ -65,16 +67,24 @@ class PigeonHole(HTTPEndpoint):
         address = request.path_params['address']
         message = await request.body()
         stmt = insert(pigeonhole_message_table). \
-            values(received_at=datetime.now(), message=message, address=address)
+            values(received_at=datetime.now(), message=message, address=address, address_prefix=address[:PREFIX_LEN])
         await database.execute(stmt)
         await BulletinBoard.broadcast(PigeonHoleNotification.from_address(bytes.fromhex(address)).to_bytes())
         return Response()
 
     async def get(self, request):
         address = request.path_params['address']
-        stmt = pigeonhole_message_table.select().where(pigeonhole_message_table.c.address == address)
-        ph = await database.fetch_one(stmt)
-        return Response(media_type="application/octet-stream", content=ph.message)
+        if len(address) == 6:
+            stmt = pigeonhole_message_table.select().where(pigeonhole_message_table.c.address_prefix == address)
+            messages = [ph.message for ph in await database.fetch_all(stmt)]
+            # TODO: LG We need to serialize the potential many messages in some way. Ideas?
+            # msgpack ?
+            return Response(media_type="application/octet-stream", content=msgpack.packb(messages, use_bin_type=True))
+
+        else:
+            stmt = pigeonhole_message_table.select().where(pigeonhole_message_table.c.address == address)
+            ph = await database.fetch_one(stmt)
+            return Response(media_type="application/octet-stream", content=ph.message) if ph is not None else Response(status_code=404)
 
 
 routes = [

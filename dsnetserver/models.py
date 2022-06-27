@@ -18,4 +18,5 @@ pigeonhole_message_table = Table(
     Column("received_at", DateTime(), index=True),
     Column("message", LargeBinary, nullable=False),
     Column("address", String(64), index=True, nullable=False),
+    Column("address_prefix", String(6), index=True, nullable=False),
 )
