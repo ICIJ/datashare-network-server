@@ -4,9 +4,8 @@ verify_ssl = true
 name = 'pypi'
 
 [packages]
-datashare-network-core = '==0.13.0'
+datashare-network-core = {editable = true, ref = "bbdb28d3cf6774b6db30ed3d7c0cb9f14681389c", git = "https://github.com/ICIJ/datashare-network-core.git"}
 starlette = '*'
-msgpack = '*'
 uvicorn = {extras = ['standard'], version = '*'}
 pytest = '*'
 sqlalchemy = '*'
@@ -16,6 +15,7 @@ psycopg2 = '*'
 
 [dev-packages]
 bumpversion = '==0.6.0'
+pytest-asyncio = "==0.18.2"
 setuptools-pipfile = '==0.4.1'
 twine = '==3.2.0'
 pytest = '*'

@@ -2,6 +2,9 @@ import pytest
 from sqlalchemy import create_engine
 import asyncio
 import dsnet
+
+import pytest
+from sqlalchemy import create_engine
 import msgpack
 from starlette.testclient import TestClient
 from dsnetserver.main import app
@@ -60,7 +63,6 @@ def test_get_ph_messages_by_shortened_address():
 
     response = client.post("/ph/beefc0c0", data=b'binary message 2')
     assert response.status_code == 200
-
 
     response = client.get("/ph/beefc0")
     assert response.status_code == 200

@@ -8,6 +8,7 @@ from typing import List
 import databases
 import dsnet
 import msgpack
+from future.backports.http.cookiejar import TIMEZONE_RE
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
 from starlette.responses import JSONResponse, Response
@@ -18,7 +19,7 @@ from starlette.websockets import WebSocket
 from dsnetserver import __version__
 from dsnet.logger import logger, add_stdout_handler
 from dsnetserver.models import pigeonhole_message_table, broadcast_query_table
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 from dsnet.message import PigeonHoleNotification
 
 DATABASE_URL = os.getenv('DS_DATABASE_URL', 'sqlite:///dsnet.db')
@@ -30,18 +31,28 @@ class BulletinBoard(WebSocketEndpoint):
     encoding = 'bytes'
     connections: List[WebSocket] = list()
 
-    def __init__(self, scope: Scope, receive: Receive, send: Send):
+    def __init__(self, scope: Scope, receive: Receive, send: Send) -> None:
         super().__init__(scope, receive, send)
 
-    async def on_connect(self, websocket):
+    async def on_connect(self, websocket: WebSocket) -> None:
         BulletinBoard.connections.append(websocket)
+        ts_parameter = websocket.query_params.get('ts')
         await websocket.accept()
+        if ts_parameter is not None:
+            await BulletinBoard.get_broadcast_messages(websocket, datetime.utcfromtimestamp(float(ts_parameter)))
 
-    async def on_disconnect(self, websocket, close_code):
+    async def on_disconnect(self, websocket: WebSocket, close_code: int) -> None:
         BulletinBoard.connections.remove(websocket)
 
+    @staticmethod
+    async def get_broadcast_messages(connection: WebSocket, ts: datetime) -> None:
+        stmt = select(broadcast_query_table).where(broadcast_query_table.c.received_at >= ts)
+        messages = await database.fetch_all(stmt)
+        for message in messages:
+            await connection.send_bytes(message.message)
+
     @classmethod
-    async def broadcast(cls, data):
+    async def broadcast(cls, data: bytes) -> None:
         logger.debug(f"broadcasting to {len(cls.connections)} clients")
         for connection in cls.connections:
             await connection.send_bytes(data)
@@ -55,7 +66,7 @@ async def homepage(_):
 
 async def broadcast(request):
     message = await request.body()
-    stmt = insert(broadcast_query_table).values(received_at=datetime.now(), message=message)
+    stmt = insert(broadcast_query_table).values(received_at=datetime.utcnow(), message=message)
     await database.execute(stmt)
     await BulletinBoard.broadcast(message)
     return Response()
@@ -74,11 +85,9 @@ class PigeonHole(HTTPEndpoint):
 
     async def get(self, request):
         address = request.path_params['address']
-        if len(address) == 6:
+        if len(address) == PREFIX_LEN:
             stmt = pigeonhole_message_table.select().where(pigeonhole_message_table.c.address_prefix == address)
             messages = [ph.message for ph in await database.fetch_all(stmt)]
-            # TODO: LG We need to serialize the potential many messages in some way. Ideas?
-            # msgpack ?
             return Response(media_type="application/octet-stream", content=msgpack.packb(messages, use_bin_type=True))
 
         else:
