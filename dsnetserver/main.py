@@ -8,7 +8,6 @@ from typing import List
 import databases
 import dsnet
 import msgpack
-from future.backports.http.cookiejar import TIMEZONE_RE
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
 from starlette.responses import JSONResponse, Response
@@ -64,8 +63,12 @@ async def homepage(_):
                          "core_version": dsnet.__version__})
 
 
-async def broadcast(request):
+async def broadcast_query(request):
     message = await request.body()
+    return await broadcast_message(message)
+
+
+async def broadcast_message(message):
     stmt = insert(broadcast_query_table).values(received_at=datetime.utcnow(), message=message)
     await database.execute(stmt)
     await BulletinBoard.broadcast(message)
@@ -80,7 +83,7 @@ class PigeonHole(HTTPEndpoint):
         stmt = insert(pigeonhole_message_table). \
             values(received_at=datetime.now(), message=message, address=address, address_prefix=address[:PREFIX_LEN])
         await database.execute(stmt)
-        await BulletinBoard.broadcast(PigeonHoleNotification.from_address(bytes.fromhex(address)).to_bytes())
+        await broadcast_message(PigeonHoleNotification.from_address(bytes.fromhex(address)).to_bytes())
         return Response()
 
     async def get(self, request):
@@ -98,7 +101,7 @@ class PigeonHole(HTTPEndpoint):
 
 routes = [
     Route('/', homepage),
-    Route('/bb/broadcast', broadcast, methods=['POST']),
+    Route('/bb/broadcast', broadcast_query, methods=['POST']),
     WebSocketRoute('/notifications', BulletinBoard),
     Mount('/ph', routes=[
         Route('/{address:str}', PigeonHole, methods=['GET', 'POST']),
