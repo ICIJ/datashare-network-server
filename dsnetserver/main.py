@@ -12,6 +12,7 @@ import dsnet
 import msgpack
 from redis.asyncio import Redis
 from starlette.applications import Starlette
+from starlette.config import Config
 from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route, Mount, WebSocketRoute
@@ -24,8 +25,11 @@ from dsnetserver.models import pigeonhole_message_table, broadcast_query_table
 from sqlalchemy import insert, select
 from dsnet.message import PigeonHoleNotification
 
-DATABASE_URL = os.getenv('DS_DATABASE_URL', 'sqlite:///dsnet.db')
-REDIS_URL = os.getenv('DS_REDIS_URL')
+
+config = Config(".env")
+DATABASE_URL = config.get('DS_DATABASE_URL', default='sqlite:///dsnet.db')
+REDIS_URL = config.get('DS_REDIS_URL', default=None)
+
 DATASHARE_NETWORK_SERVER_CHANNEL = 'ds_server_channel'
 PREFIX_LEN = 6
 database = databases.Database(DATABASE_URL)
