@@ -3,6 +3,8 @@ jobs:
   build:
     docker:
       - image: circleci/python:3.6
+      - image: redis:4.0.1-alpine
+         name: redis
 
     steps:
       - checkout

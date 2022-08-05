@@ -6,11 +6,17 @@ from sqlalchemy import create_engine
 import pytest
 from starlette.testclient import TestClient
 
-from dsnetserver.main import app
+from dsnetserver.main import setup_app
 from dsnetserver.main import DATABASE_URL, database
-from dsnetserver.models import metadata, broadcast_query_table
+from dsnetserver.models import metadata
 
 db = None
+
+
+@pytest_asyncio.fixture
+async def app():
+    yield setup_app()
+
 
 @pytest_asyncio.fixture
 async def connect_disconnect_db():
@@ -24,7 +30,7 @@ async def connect_disconnect_db():
 
 @pytest.mark.timeout(5)
 @pytest.mark.asyncio
-async def test_post_broadcast(connect_disconnect_db):
+async def test_post_broadcast(connect_disconnect_db, app):
     alice = TestClient(app)
     bob = TestClient(app)
     response = alice.post("/bb/broadcast", data=b'query payload')
@@ -37,7 +43,7 @@ async def test_post_broadcast(connect_disconnect_db):
 
 @pytest.mark.timeout(5)
 @pytest.mark.asyncio
-async def test_post_pigeon_hole(connect_disconnect_db):
+async def test_post_pigeon_hole(connect_disconnect_db, app):
     alice = TestClient(app)
     bob = TestClient(app)
     response = alice.post("/ph/deadbeef", data=b'response payload')

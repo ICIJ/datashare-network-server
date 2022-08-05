@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+import asyncio
 import functools
 import logging
 import os
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 import databases
 import dsnet
 import msgpack
+from redis.asyncio import Redis
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
 from starlette.responses import JSONResponse, Response
@@ -23,13 +25,30 @@ from sqlalchemy import insert, select
 from dsnet.message import PigeonHoleNotification
 
 DATABASE_URL = os.getenv('DS_DATABASE_URL', 'sqlite:///dsnet.db')
+REDIS_URL = os.getenv('DS_REDIS_URL')
+DATASHARE_NETWORK_SERVER_CHANNEL = 'ds_server_channel'
 PREFIX_LEN = 6
 database = databases.Database(DATABASE_URL)
 
 
 class BulletinBoard:
-    def __init__(self):
+    def __init__(self, redis: Optional[Redis]):
+        self.redis = redis
+        self.pubsub = redis.pubsub() if redis else None
         self.connections: List[WebSocket] = []
+        self._sync_coroutine = None
+        self._stop_asked = False
+
+    def start_sync(self):
+        if self.redis is not None:
+            self._sync_coroutine = asyncio.create_task(self._broadcast_sync_coroutine())
+
+    async def _broadcast_sync_coroutine(self):
+        await self.pubsub.subscribe(DATASHARE_NETWORK_SERVER_CHANNEL)
+        while not self._stop_asked:
+            data = await self.pubsub.get_message(timeout=2.0)
+            if data is not None and data['type'] == 'message':
+                await self._broadcast(data['data'])
 
     def add(self, websocket: WebSocket):
         self.connections.append(websocket)
@@ -42,7 +61,12 @@ class BulletinBoard:
 
         stmt = insert(broadcast_query_table).values(received_at=datetime.utcnow(), message=data)
         await database.execute(stmt)
+        if self.redis is not None:
+            await self.redis.publish(DATASHARE_NETWORK_SERVER_CHANNEL, data)
+        else:
+            await self._broadcast(data)
 
+    async def _broadcast(self, data: bytes) -> None:
         for connection in self.connections:
             await connection.send_bytes(data)
 
@@ -54,13 +78,21 @@ class BulletinBoard:
     async def resume(self, websocket: WebSocket, ts_parameter: str):
         await BulletinBoard.get_broadcast_messages(websocket, datetime.utcfromtimestamp(float(ts_parameter)))
 
-
     @staticmethod
     async def get_broadcast_messages(connection: WebSocket, ts: datetime) -> None:
         stmt = select(broadcast_query_table).where(broadcast_query_table.c.received_at >= ts)
         messages = await database.fetch_all(stmt)
         for message in messages:
             await connection.send_bytes(message.message)
+
+    async def stop(self):
+        if self._broadcast_sync_coroutine is not None:
+            self._stop_asked = True
+            await asyncio.wait_for(self._sync_coroutine, timeout=4)
+        if self.pubsub is not None:
+            await self.pubsub.close()
+        for conn in self.connections:
+            await conn.close()
 
 
 class BulletinBoardEndpoint(WebSocketEndpoint):
@@ -114,8 +146,9 @@ class PigeonHole(HTTPEndpoint):
             return Response(media_type="application/octet-stream", content=ph.message) if ph is not None else Response(status_code=404)
 
 
-def setup_app():
-    bulletin_board = BulletinBoard()
+def setup_app(redis_url: Optional[str] = None):
+    redis = Redis.from_url(redis_url) if redis_url else None
+    bulletin_board = BulletinBoard(redis)
     routes = [
         Route('/', homepage),
         Route('/bb/broadcast', bulletin_board.broadcast_query, methods=['POST']),
@@ -127,8 +160,8 @@ def setup_app():
 
     add_stdout_handler(level=logging.DEBUG)
     return Starlette(debug=True, routes=routes,
-                    on_startup=[database.connect],
-                    on_shutdown=[database.disconnect])
+                    on_startup=[database.connect, bulletin_board.start_sync],
+                    on_shutdown=[database.disconnect, bulletin_board.stop])
 
 
-app = setup_app()
+app = setup_app(REDIS_URL)

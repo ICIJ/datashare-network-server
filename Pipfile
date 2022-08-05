@@ -7,19 +7,20 @@ name = 'pypi'
 datashare-network-core = {editable = true, ref = "bbdb28d3cf6774b6db30ed3d7c0cb9f14681389c", git = "https://github.com/ICIJ/datashare-network-core.git"}
 starlette = '*'
 uvicorn = {extras = ['standard'], version = '*'}
-pytest = '*'
 sqlalchemy = '*'
 databases = {extras = ['sqlite', 'postgresql'], version = '*'}
 alembic = '*'
 psycopg2 = '*'
+redis = '==4.3.4'
 
 [dev-packages]
+pytest = '*'
 bumpversion = '==0.6.0'
 pytest-asyncio = "==0.18.2"
 setuptools-pipfile = '==0.4.1'
 twine = '==3.2.0'
-pytest = '*'
 pytest-timeout = '*'
+aiohttp = "*"
 
 [requires]
 python_version = '3'
