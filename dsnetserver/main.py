@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import logging
 import os
 from datetime import datetime
@@ -26,22 +27,33 @@ PREFIX_LEN = 6
 database = databases.Database(DATABASE_URL)
 
 
-class BulletinBoard(WebSocketEndpoint):
-    encoding = 'bytes'
-    connections: List[WebSocket] = list()
+class BulletinBoard:
+    def __init__(self):
+        self.connections: List[WebSocket] = []
 
-    def __init__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        super().__init__(scope, receive, send)
+    def add(self, websocket: WebSocket):
+        self.connections.append(websocket)
 
-    async def on_connect(self, websocket: WebSocket) -> None:
-        BulletinBoard.connections.append(websocket)
-        ts_parameter = websocket.query_params.get('ts')
-        await websocket.accept()
-        if ts_parameter is not None:
-            await BulletinBoard.get_broadcast_messages(websocket, datetime.utcfromtimestamp(float(ts_parameter)))
+    def remove(self, websocket):
+        self.connections.remove(websocket)
 
-    async def on_disconnect(self, websocket: WebSocket, close_code: int) -> None:
-        BulletinBoard.connections.remove(websocket)
+    async def broadcast(self, data: bytes) -> None:
+        logger.debug(f"broadcasting to {len(self.connections)} clients")
+
+        stmt = insert(broadcast_query_table).values(received_at=datetime.utcnow(), message=data)
+        await database.execute(stmt)
+
+        for connection in self.connections:
+            await connection.send_bytes(data)
+
+    async def broadcast_query(self, request):
+        message = await request.body()
+        await self.broadcast(message)
+        return Response()
+
+    async def resume(self, websocket: WebSocket, ts_parameter: str):
+        await BulletinBoard.get_broadcast_messages(websocket, datetime.utcfromtimestamp(float(ts_parameter)))
+
 
     @staticmethod
     async def get_broadcast_messages(connection: WebSocket, ts: datetime) -> None:
@@ -50,11 +62,23 @@ class BulletinBoard(WebSocketEndpoint):
         for message in messages:
             await connection.send_bytes(message.message)
 
-    @classmethod
-    async def broadcast(cls, data: bytes) -> None:
-        logger.debug(f"broadcasting to {len(cls.connections)} clients")
-        for connection in cls.connections:
-            await connection.send_bytes(data)
+
+class BulletinBoardEndpoint(WebSocketEndpoint):
+    encoding = 'bytes'
+
+    def __init__(self, bulletin_board: BulletinBoard, scope: Scope, receive: Receive, send: Send) -> None:
+        super().__init__(scope, receive, send)
+        self.bulletin_board = bulletin_board
+
+    async def on_connect(self, websocket: WebSocket) -> None:
+        self.bulletin_board.add(websocket)
+        ts_parameter = websocket.query_params.get('ts')
+        await websocket.accept()
+        if ts_parameter is not None:
+            await self.bulletin_board.resume(websocket, ts_parameter)
+
+    async def on_disconnect(self, websocket: WebSocket, close_code: int) -> None:
+        self.bulletin_board.remove(websocket)
 
 
 async def homepage(_):
@@ -63,19 +87,10 @@ async def homepage(_):
                          "core_version": dsnet.__version__})
 
 
-async def broadcast_query(request):
-    message = await request.body()
-    return await broadcast_message(message)
-
-
-async def broadcast_message(message):
-    stmt = insert(broadcast_query_table).values(received_at=datetime.utcnow(), message=message)
-    await database.execute(stmt)
-    await BulletinBoard.broadcast(message)
-    return Response()
-
-
 class PigeonHole(HTTPEndpoint):
+    def __init__(self, bulletin_board: BulletinBoard, scope: Scope, receive: Receive, send: Send) -> None:
+        super().__init__(scope, receive, send)
+        self.bulletin_board = bulletin_board
 
     async def post(self, request):
         address = request.path_params['address']
@@ -83,7 +98,7 @@ class PigeonHole(HTTPEndpoint):
         stmt = insert(pigeonhole_message_table). \
             values(received_at=datetime.now(), message=message, address=address, address_prefix=address[:PREFIX_LEN])
         await database.execute(stmt)
-        await broadcast_message(PigeonHoleNotification.from_address(bytes.fromhex(address)).to_bytes())
+        await self.bulletin_board.broadcast(PigeonHoleNotification.from_address(bytes.fromhex(address)).to_bytes())
         return Response()
 
     async def get(self, request):
@@ -99,16 +114,21 @@ class PigeonHole(HTTPEndpoint):
             return Response(media_type="application/octet-stream", content=ph.message) if ph is not None else Response(status_code=404)
 
 
-routes = [
-    Route('/', homepage),
-    Route('/bb/broadcast', broadcast_query, methods=['POST']),
-    WebSocketRoute('/notifications', BulletinBoard),
-    Mount('/ph', routes=[
-        Route('/{address:str}', PigeonHole, methods=['GET', 'POST']),
-    ])
-]
+def setup_app():
+    bulletin_board = BulletinBoard()
+    routes = [
+        Route('/', homepage),
+        Route('/bb/broadcast', bulletin_board.broadcast_query, methods=['POST']),
+        WebSocketRoute('/notifications', functools.partial(BulletinBoardEndpoint, bulletin_board)),
+        Mount('/ph', routes=[
+            Route('/{address:str}', functools.partial(PigeonHole, bulletin_board), methods=['GET', 'POST']),
+        ])
+    ]
 
-add_stdout_handler(level=logging.DEBUG)
-app = Starlette(debug=True, routes=routes,
-                on_startup=[database.connect],
-                on_shutdown=[database.disconnect])
+    add_stdout_handler(level=logging.DEBUG)
+    return Starlette(debug=True, routes=routes,
+                    on_startup=[database.connect],
+                    on_shutdown=[database.disconnect])
+
+
+app = setup_app()
