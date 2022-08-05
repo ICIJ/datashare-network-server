@@ -32,23 +32,8 @@ database = databases.Database(DATABASE_URL)
 
 
 class BulletinBoard:
-    def __init__(self, redis: Optional[Redis]):
-        self.redis = redis
-        self.pubsub = redis.pubsub() if redis else None
+    def __init__(self):
         self.connections: List[WebSocket] = []
-        self._sync_coroutine = None
-        self._stop_asked = False
-
-    def start_sync(self):
-        if self.redis is not None:
-            self._sync_coroutine = asyncio.create_task(self._broadcast_sync_coroutine())
-
-    async def _broadcast_sync_coroutine(self):
-        await self.pubsub.subscribe(DATASHARE_NETWORK_SERVER_CHANNEL)
-        while not self._stop_asked:
-            data = await self.pubsub.get_message(timeout=2.0)
-            if data is not None and data['type'] == 'message':
-                await self._broadcast(data['data'])
 
     def add(self, websocket: WebSocket):
         self.connections.append(websocket)
@@ -61,10 +46,7 @@ class BulletinBoard:
 
         stmt = insert(broadcast_query_table).values(received_at=datetime.utcnow(), message=data)
         await database.execute(stmt)
-        if self.redis is not None:
-            await self.redis.publish(DATASHARE_NETWORK_SERVER_CHANNEL, data)
-        else:
-            await self._broadcast(data)
+        await self._broadcast(data)
 
     async def _broadcast(self, data: bytes) -> None:
         for connection in self.connections:
@@ -85,14 +67,45 @@ class BulletinBoard:
         for message in messages:
             await connection.send_bytes(message.message)
 
+    def start_sync(self):
+        pass
+
     async def stop(self):
+        for conn in self.connections:
+            await conn.close()
+
+
+class RedisSyncBulletinBoard(BulletinBoard):
+    def __init__(self,  redis: Redis):
+        super().__init__()
+        self.redis = redis
+        self.pubsub = redis.pubsub()
+        self._sync_coroutine = None
+        self._stop_asked = False
+
+    def start_sync(self):
+        self._sync_coroutine = asyncio.create_task(self._broadcast_sync_coroutine())
+
+    async def _broadcast_sync_coroutine(self):
+        await self.pubsub.subscribe(DATASHARE_NETWORK_SERVER_CHANNEL)
+        while not self._stop_asked:
+            data = await self.pubsub.get_message(timeout=2.0)
+            if data is not None and data['type'] == 'message':
+                await self._broadcast(data['data'])
+
+    async def broadcast(self, data: bytes) -> None:
+        logger.debug(f"broadcasting to {len(self.connections)} clients")
+
+        stmt = insert(broadcast_query_table).values(received_at=datetime.utcnow(), message=data)
+        await database.execute(stmt)
+        await self.redis.publish(DATASHARE_NETWORK_SERVER_CHANNEL, data)
+
+    async def stop(self):
+        await super().stop()
         if self._broadcast_sync_coroutine is not None:
             self._stop_asked = True
             await asyncio.wait_for(self._sync_coroutine, timeout=4)
-        if self.pubsub is not None:
-            await self.pubsub.close()
-        for conn in self.connections:
-            await conn.close()
+        await self.pubsub.close()
 
 
 class BulletinBoardEndpoint(WebSocketEndpoint):
@@ -147,8 +160,7 @@ class PigeonHole(HTTPEndpoint):
 
 
 def setup_app(redis_url: Optional[str] = None):
-    redis = Redis.from_url(redis_url) if redis_url else None
-    bulletin_board = BulletinBoard(redis)
+    bulletin_board = RedisSyncBulletinBoard(Redis.from_url(redis_url)) if redis_url is not None else BulletinBoard()
     routes = [
         Route('/', homepage),
         Route('/bb/broadcast', bulletin_board.broadcast_query, methods=['POST']),
