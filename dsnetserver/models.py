@@ -4,7 +4,7 @@ from sqlalchemy import Table, Column, Integer, DateTime, Text, LargeBinary, Stri
 metadata = MetaData()
 
 broadcast_query_table = Table(
-    "broadcast_query",
+    "broadcast_message",
     metadata,
     Column("id", Integer, primary_key=True),
     Column("received_at", DateTime(), index=True),
