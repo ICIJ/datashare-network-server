@@ -5,12 +5,12 @@ name = 'pypi'
 
 [packages]
 datashare-network-core = {editable = true, ref = "bbdb28d3cf6774b6db30ed3d7c0cb9f14681389c", git = "https://github.com/ICIJ/datashare-network-core.git"}
-starlette = '*'
-uvicorn = {extras = ['standard'], version = '*'}
-sqlalchemy = '*'
-databases = {extras = ['sqlite', 'postgresql'], version = '*'}
-alembic = '*'
-psycopg2 = '*'
+starlette = '==0.20.4'
+uvicorn = {extras = ['standard'], version = '==0.18.2'}
+sqlalchemy = '==1.4.39'
+databases = {extras = ['sqlite', 'postgresql'], version = '==0.6.0'}
+alembic = '==1.8.1'
+psycopg2 = '==2.9.3'
 redis = '==4.3.4'
 
 [dev-packages]
