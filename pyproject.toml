@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "datashare-network-server"
+version = "0.7.1"
+description = "Datashare Network Server"
+authors = ["ICIJ <engineering@icij.org>"]
+license = "GNU Affero General Public License v3"
+readme = "README.md"
+packages = [{include = "dsnetserver"}]
+keywords=['datashare', 'server', 'network', 'cryptography']
+classifiers=[
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.6",
+          "Programming Language :: Python :: 3.7",
+          "Programming Language :: Python :: 3.8",
+          "Intended Audience :: Developers",
+          "License :: OSI Approved :: GNU Affero General Public License v3",
+          "Operating System :: OS Independent",
+          "Topic :: Security :: Cryptography"
+      ]
+
+[tool.poetry.dependencies]
+alembic = "^1.9.0"
+databases = {extras = ["postgresql", "sqlite"], version = "^0.6.2"}
+datashare-network-core = { git = "https://github.com/ICIJ/datashare-network-core.git", tag = "0.13.2" }
+psycopg2 = "^2.9.5"
+python = "^3.8"
+starlette = "^0.23.1"
+uvicorn = {extras = ["standart"], version = "^0.20.0"}
+redis = "^4.4.0"
+
+[tool.poetry.extras]
+databases=["sqlite", 'postgresql']
+uvicorn=["standart"]
+
+[tool.poetry.group.dev.dependencies]
+httpx = "^0.23.1"
+pytest = "^7.2.0"
+pytest-asyncio = "^0.20.3"
+aiohttp = "^3.8.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

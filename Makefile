@@ -1,29 +1,41 @@
-CURRENT_VERSION ?= `pipenv run python setup.py --version`
+CURRENT_VERSION ?= `poetry version -s`
+SEMVERS := major minor patch
 
 clean:
 		find . -name "*.pyc" -exec rm -rf {} \;
 		rm -rf dist *.egg-info __pycache__
 
-install: install_pip
+dist:
+		poetry build
 
-install_pip:
-		pipenv install -d
+install: poetry_install
 
-test:
-		pipenv run pytest
+poetry_install:
+		poetry install
 
 run:
-		pipenv run uvicorn dsnetserver.main:app
+		poetry run uvicorn dsnetserver.main:app
 
-minor:
-		pipenv run bumpversion --commit --tag --current-version ${CURRENT_VERSION} minor dsnetserver/__init__.py
+tests:
+		poetry run pytest
 
-major:
-		pipenv run bumpversion --commit --tag --current-version ${CURRENT_VERSION} major dsnetserver/__init__.py
+test-watch:
+		poetry run pytest-watch
 
-patch:
-		pipenv run bumpversion --commit --tag --current-version ${CURRENT_VERSION} patch dsnetserver/__init__.py
+tag_version: 
+		git commit -m "build: bump to ${CURRENT_VERSION}" pyproject.toml
+		git tag ${CURRENT_VERSION}
+
+$(SEMVERS):
+		poetry version $@
+		$(MAKE) tag_version
+		
+set_version:
+		poetry version ${CURRENT_VERSION}
+		$(MAKE) tag_version
 
 distribute:
-		pipenv run python setup.py sdist bdist_wheel
-		pipenv run twine upload dist/*
+		poetry publish --build
+
+show-updates:
+		poetry show --latest --outdated
