@@ -25,12 +25,12 @@ datashare-network-core = { git = "https://github.com/ICIJ/datashare-network-core
 psycopg2 = "^2.9.5"
 python = "^3.8"
 starlette = "^0.23.1"
-uvicorn = {extras = ["standart"], version = "^0.20.0"}
+uvicorn = {extras = ["standard"], version = "^0.20.0"}
 redis = "^4.4.0"
 
 [tool.poetry.extras]
 databases=["sqlite", 'postgresql']
-uvicorn=["standart"]
+uvicorn=["standard"]
 
 [tool.poetry.group.dev.dependencies]
 httpx = "^0.23.1"
@@ -41,3 +41,7 @@ aiohttp = "^3.8.3"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+[tool.pytest.ini_options]
+markers = [
+    "timeout"
+]
