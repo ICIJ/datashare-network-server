@@ -33,7 +33,7 @@ async def connect_disconnect_db():
 async def test_post_broadcast(connect_disconnect_db, app):
     alice = TestClient(app)
     bob = TestClient(app)
-    response = alice.post("/bb/broadcast", data=b'query payload')
+    response = alice.post("/bb/broadcast", content=b'query payload')
     ts = datetime.utcnow()
     with bob.websocket_connect(f'/notifications?ts={ts.timestamp() - 200}') as websocket:
         assert response.status_code == 200
@@ -46,7 +46,7 @@ async def test_post_broadcast(connect_disconnect_db, app):
 async def test_post_pigeon_hole(connect_disconnect_db, app):
     alice = TestClient(app)
     bob = TestClient(app)
-    response = alice.post("/ph/deadbeef", data=b'response payload')
+    response = alice.post("/ph/deadbeef", content=b'response payload')
     ts = datetime.utcnow()
     with bob.websocket_connect(f'/notifications?ts={ts.timestamp() - 200}') as websocket:
         assert response.status_code == 200

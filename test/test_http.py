@@ -40,7 +40,7 @@ def test_root():
 def test_post_get_ph_message():
     client = TestClient(app)
 
-    response = client.post("/ph/deadbeef", data=b'binary message')
+    response = client.post("/ph/deadbeef", content=b'binary message')
     assert response.status_code == 200
 
     response = client.get("/ph/deadbeef")
@@ -59,10 +59,10 @@ def test_post_get_ph_message_with_wrong_address():
 def test_get_ph_messages_by_shortened_address():
     client = TestClient(app)
 
-    response = client.post("/ph/beefc0fe", data=b'binary message 1')
+    response = client.post("/ph/beefc0fe", content=b'binary message 1')
     assert response.status_code == 200
 
-    response = client.post("/ph/beefc0c0", data=b'binary message 2')
+    response = client.post("/ph/beefc0c0", content=b'binary message 2')
     assert response.status_code == 200
 
     response = client.get("/ph/beefc0")
@@ -79,7 +79,7 @@ def test_post_broadcast():
     client = TestClient(app)
 
     with client.websocket_connect('/notifications') as websocket:
-        response = client.post("/bb/broadcast", data=b'query payload')
+        response = client.post("/bb/broadcast", content=b'query payload')
         assert response.status_code == 200
         data = websocket.receive_bytes()
         assert data == b'query payload'
@@ -90,7 +90,7 @@ def test_post_response():
     client = TestClient(app)
 
     with client.websocket_connect('/notifications') as websocket:
-        response = client.post("/ph/deadbeef", data=b'response data')
+        response = client.post("/ph/deadbeef", content=b'response data')
         assert response.status_code == 200
         data = websocket.receive_bytes()
         assert data == PigeonHoleNotification('deadbe').to_bytes()
