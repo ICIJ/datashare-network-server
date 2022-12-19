@@ -630,7 +630,7 @@ sqlite = ["aiosqlite"]
 
 [[package]]
 name = "datashare-network-core"
-version = "0.13.3"
+version = "0.13.4"
 description = "Datashare network core librairy"
 category = "main"
 optional = false
@@ -641,13 +641,13 @@ develop = false
 [package.dependencies]
 cryptography = "^38.0.4"
 scalable-cuckoo-filter = "^1.1"
-sscred = {git = "https://github.com/ICIJ/SSCred.git", tag = "0.3.4"}
+sscred = {git = "https://github.com/ICIJ/SSCred.git"}
 
 [package.source]
 type = "git"
 url = "https://github.com/ICIJ/datashare-network-core.git"
-reference = "0.13.3"
-resolved_reference = "5eae6eade15071b7df80dd1695dab095a816c3f2"
+reference = "0.13.4"
+resolved_reference = "934a4fa11799db6db08ad4d5b8d0fabe60ee3cb8"
 
 [[package]]
 name = "exceptiongroup"
@@ -1511,8 +1511,8 @@ petlib = {git = "https://github.com/spring-epfl/petlib.git"}
 [package.source]
 type = "git"
 url = "https://github.com/ICIJ/SSCred.git"
-reference = "0.3.4"
-resolved_reference = "89dbf347267acb81efc8b98a381c5e4a6bbde042"
+reference = "HEAD"
+resolved_reference = "1bfd4ad1b1565046d238b9f46bc342bf426f6c40"
 
 [[package]]
 name = "starlette"
@@ -1687,4 +1687,4 @@ uvicorn = []
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "dfdb1ac9df11fbb3aef06f676cce01c8ad7775a816ab85e0d1b0860772eb1fe8"
+content-hash = "9e3e03659250b3735f3dd6010efc030243db0acb7d5af34aba5cd493ea96173d"

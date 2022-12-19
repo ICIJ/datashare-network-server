@@ -21,7 +21,7 @@ classifiers=[
 [tool.poetry.dependencies]
 alembic = "^1.9.0"
 databases = {extras = ["postgresql", "sqlite"], version = "^0.6.2"}
-datashare-network-core = { git = "https://github.com/ICIJ/datashare-network-core.git", tag = "0.13.3" }
+datashare-network-core = { git = "https://github.com/ICIJ/datashare-network-core.git", tag = "0.13.4" }
 psycopg2 = "^2.9.5"
 python = "^3.8"
 starlette = "^0.23.1"
