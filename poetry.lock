@@ -647,8 +647,8 @@ sscred = {git = "https://github.com/ICIJ/SSCred.git", tag = "0.3.4"}
 [package.source]
 type = "git"
 url = "https://github.com/ICIJ/datashare-network-core.git"
-reference = "f76668e48985db496f3f03dfceb44ada882dd179"
-resolved_reference = "f76668e48985db496f3f03dfceb44ada882dd179"
+reference = "246cbb1e980d3e6382f3375d8521ad3915e394fc"
+resolved_reference = "246cbb1e980d3e6382f3375d8521ad3915e394fc"
 
 [[package]]
 name = "exceptiongroup"
@@ -1979,4 +1979,4 @@ uvicorn = []
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "9d9e09770f2c3bc63f686accc4e4c9a821d26032763a5b7b822691e8200c1925"
+content-hash = "37c0a751b2a7a010de15d3311bc5ef9aac3a22f4cfcc0754bf1292d35e796e48"
