@@ -3,13 +3,13 @@ from __future__ import annotations
 import asyncio
 import functools
 import logging
-import os
 from datetime import datetime
 from typing import List, Optional
 
 import databases
 import dsnet
 import msgpack
+from dsnet.core import QueryType
 from redis.asyncio import Redis
 from starlette.applications import Starlette
 from starlette.config import Config
@@ -30,6 +30,7 @@ config = Config(".env")
 DATABASE_URL = config.get('DS_DATABASE_URL', default='sqlite:///dsnet.db')
 REDIS_URL = config.get('DS_REDIS_URL', default=None)
 
+QUERY_TYPE = QueryType[(config.get('DS_QUERY_TYPE', default=QueryType.CLEARTEXT.name))]
 DATASHARE_NETWORK_SERVER_CHANNEL = 'ds_server_channel'
 PREFIX_LEN = 6
 database = databases.Database(DATABASE_URL)
@@ -133,7 +134,8 @@ class BulletinBoardEndpoint(WebSocketEndpoint):
 async def homepage(_):
     return JSONResponse({"message": f"Datashare Network Server version {__version__}",
                          "server_version": __version__,
-                         "core_version": dsnet.__version__})
+                         "core_version": dsnet.__version__,
+                         "query_type": int(QUERY_TYPE)})
 
 
 class PigeonHole(HTTPEndpoint):

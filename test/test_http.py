@@ -1,8 +1,6 @@
-import pytest
-from sqlalchemy import create_engine
 import asyncio
 import dsnet
-
+from dsnet.core import QueryType
 import pytest
 from sqlalchemy import create_engine
 import msgpack
@@ -34,7 +32,8 @@ def test_root():
     assert response.status_code == 200
     assert response.json() == {"message": "Datashare Network Server version %s" % __version__,
                                "server_version": __version__,
-                               "core_version": dsnet.__version__}
+                               "core_version": dsnet.__version__,
+                               "query_type": QueryType.CLEARTEXT}
 
 
 def test_post_get_ph_message():
